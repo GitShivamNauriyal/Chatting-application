@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('https://workspace-chat-backend.onrender.com');
 
 function Chat({ token, onLogout }) {
   const [messages, setMessages] = useState([]);
@@ -16,16 +16,16 @@ function Chat({ token, onLogout }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const wsRes = await axios.get('http://localhost:5000/api/workspaces', axiosConfig);
+        const wsRes = await axios.get('https://workspace-chat-backend.onrender.com/api/workspaces', axiosConfig);
         if (wsRes.data.length > 0) {
           const workspaceId = wsRes.data[0]._id; 
           
-          const chRes = await axios.get(`http://localhost:5000/api/channels/${workspaceId}`, axiosConfig);
+          const chRes = await axios.get(`https://workspace-chat-backend.onrender.com/api/channels/${workspaceId}`, axiosConfig);
           if (chRes.data.length > 0) {
             const channel = chRes.data[0]; 
             setActiveChannel(channel);
 
-            const msgRes = await axios.get(`http://localhost:5000/api/messages/${channel._id}`, axiosConfig);
+            const msgRes = await axios.get(`https://workspace-chat-backend.onrender.com/api/messages/${channel._id}`, axiosConfig);
             setMessages(msgRes.data);
 
             socket.emit('join_channel', channel._id);

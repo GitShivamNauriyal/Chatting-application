@@ -11,10 +11,10 @@ function Auth({ onLogin }) {
     e.preventDefault();
     try {
       if (isLogin) {
-        const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+        const res = await axios.post('https://workspace-chat-backend.onrender.com/api/auth/login', { email, password });
         onLogin(res.data.token);
       } else {
-        await axios.post('http://localhost:5000/api/auth/register', { username, email, password });
+        await axios.post('https://workspace-chat-backend.onrender.com/api/auth/register', { username, email, password });
         alert('Registration successful! Please log in.');
         setIsLogin(true); 
       }
