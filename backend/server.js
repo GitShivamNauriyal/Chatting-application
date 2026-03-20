@@ -24,10 +24,12 @@ const io = new Server(server, {
 
 app.use(cors()); 
 app.use(express.json()); 
+// This looks for the MONGO_URI variable on Render
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/workspace-chat-fresh';
 
-mongoose.connect('mongodb://127.0.0.1:27017/workspace-chat-fresh')
-    .then(() => console.log('Connected to MongoDB Database!'))
-    .catch((err) => console.error('MongoDB connection error:', err));
+mongoose.connect(mongoURI)
+  .then(() => console.log('✅ Connected to MongoDB Atlas!'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // --- API Routes ---
 app.use('/api/auth', require('./routes/auth'));
