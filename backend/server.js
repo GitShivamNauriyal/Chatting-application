@@ -1,100 +1,88 @@
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
-require('dotenv').config();
-
-// --- SOCKET.IO IMPORTS ---
+const cors = require('cors');
+const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
-const Message = require('./models/Message'); // We need the model to save live messages
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
 
-// --- SOCKET.IO SETUP ---
-// We create an HTTP server and pass our Express app into it
-const server = http.createServer(app); 
+// --- MIDDLEWARE ---
+app.use(cors({
+  origin: "*", // Allows your Vercel frontend to connect
+  methods: ["GET", "POST", "PUT", "DELETE"]
+}));
+app.use(express.json());
 
-// Initialize Socket.IO with CORS (allowing our future React frontend to connect)
-const io = new Server(server, {
-    cors: {
-        origin: "*", // Default React port
-        methods: ["GET", "POST"]
-    }
-});
-
-app.use(cors()); 
-app.use(express.json()); 
-// This looks for the MONGO_URI variable on Render
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/workspace-chat-fresh';
+// --- MONGODB CONNECTION ---
+const mongoURI = process.env.MONGO_URI; 
 
 mongoose.connect(mongoURI)
   .then(() => console.log('✅ Connected to MongoDB Atlas!'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
-// --- API Routes ---
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/workspaces', require('./routes/workspace'));
-app.use('/api/channels', require('./routes/channel'));
-app.use('/api/messages', require('./routes/message')); // ADDED MESSAGE ROUTE
+// --- ROUTES ---
+// Note: Ensure these paths match your actual route files!
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/workspaces', require('./routes/workspaceRoutes'));
+app.use('/api/channels', require('./routes/channelRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
 
-app.get('/', (req, res) => {
-    res.send('Workspace Chat API is running with WebSockets!');
+// --- SOCKET.IO SETUP ---
+const io = new Server(server, {
+  cors: {
+    origin: "*", 
+    methods: ["GET", "POST"]
+  }
 });
 
-// --- REAL-TIME SOCKET.IO LOGIC ---
+// The "Guestbook" to track who is currently online
+const onlineUsers = new Map(); 
+
 io.on('connection', (socket) => {
-    console.log(`User connected to WebSockets: ${socket.id}`);
+  console.log(`User connected: ${socket.id}`);
 
-    // 1. When a user clicks on a channel, they "join" a Socket room for that channel
-    socket.on('join_channel', (channelId) => {
-        socket.join(channelId);
-        console.log(`User joined channel: ${channelId}`);
-    });
+  // 1. Join a specific channel room
+  socket.on('join_channel', (channelId) => {
+    socket.join(channelId);
+  });
 
-    // 2. When a user sends a message
-    socket.on('send_message', async (data) => {
-        try {
-            // data will contain: { content, senderId, channelId }
-            
-            // Save message to MongoDB first
-            const newMessage = new Message({
-                content: data.content,
-                sender: data.senderId,
-                channel: data.channelId
-            });
-            await newMessage.save();
+  // 2. Handle sending messages instantly
+  socket.on('send_message', (data) => {
+    socket.to(data.channelId).emit('receive_message', data);
+  });
 
-            // Populate the sender data so the frontend can show the username instantly
-            await newMessage.populate('sender', 'username');
+  // 3. Handle "Typing..." indicators
+  socket.on('typing', (data) => {
+    socket.to(data.channelId).emit('user_typing', data.username);
+  });
 
-            // Broadcast the saved message ONLY to users in that specific channel
-            io.to(data.channelId).emit('receive_message', newMessage);
-            
-        } catch (error) {
-            console.error("Error saving message via socket:", error);
-        }
-    });
+  socket.on('stop_typing', (channelId) => {
+    socket.to(channelId).emit('user_stopped_typing');
+  });
 
-    // 3. When a user disconnects (closes the tab)
-    socket.on('disconnect', () => {
-        console.log(`User disconnected: ${socket.id}`);
-    });
+  // 4. Handle "Green Dot" online status
+  socket.on('register_user', (userId) => {
+    onlineUsers.set(socket.id, userId);
+    // Broadcast the unique list of online user IDs to everyone
+    io.emit('online_users', Array.from(new Set(onlineUsers.values())));
+  });
+
+  // 5. Handle user disconnecting (closing the tab/browser)
+  socket.on('disconnect', () => {
+    console.log(`User disconnected: ${socket.id}`);
+    onlineUsers.delete(socket.id);
+    // Update everyone's screen to remove the green dot for this user
+    io.emit('online_users', Array.from(new Set(onlineUsers.values())));
+  });
 });
 
-const PORT = process.env.PORT || 5000;
-
-// IMPORTANT: We must use server.listen() now, NOT app.listen()
+// --- START SERVER ---
+const PORT = process.env.PORT || 10000; // Render prefers 10000, fallback to 5000
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-// --- NEW: Typing Indicators ---
-    socket.on('typing', (data) => {
-      // Send the typing user's name to everyone else in the channel
-      socket.to(data.channelId).emit('user_typing', data.username);
-    });
-
-    socket.on('stop_typing', (channelId) => {
-      // Tell everyone in the channel to hide the typing indicator
-      socket.to(channelId).emit('user_stopped_typing');
-    });
