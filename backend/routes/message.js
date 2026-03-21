@@ -21,4 +21,23 @@ router.get('/:channelId', authMiddleware, async (req, res) => {
     }
 });
 
+// --- DELETE A MESSAGE ---
+// DELETE /api/messages/:id
+router.delete('/:id', authMiddleware, async (req, res) => {
+    try {
+        const message = await Message.findById(req.params.id);
+        
+        if (!message) {
+            return res.status(404).json({ message: 'Message not found' });
+        }
+
+        // Delete the message from MongoDB
+        await message.deleteOne();
+        res.status(200).json({ message: 'Message deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error deleting message' });
+    }
+});
+
 module.exports = router;
