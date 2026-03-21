@@ -27,10 +27,10 @@ mongoose.connect(mongoURI)
 
 // --- ROUTES ---
 // Note: Ensure these paths match your actual route files!
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/workspaces', require('./routes/workspaceRoutes'));
-app.use('/api/channels', require('./routes/channelRoutes'));
-app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/workspaces', require('./routes/workspace'));
+app.use('/api/channels', require('./routes/channel'));
+app.use('/api/messages', require('./routes/message'));
 
 // --- SOCKET.IO SETUP ---
 const io = new Server(server, {
