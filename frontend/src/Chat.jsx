@@ -24,7 +24,7 @@ function Chat({ token, onLogout }) {
   const messagesEndRef = useRef(null);
   
   const payload = JSON.parse(atob(token.split('.')[1])); 
-  const currentUserId = payload.userId;
+  const currentUserId = payload.userId || payload._id;
   const currentUsername = payload.username || payload.name || 'Someone';
 
   const axiosConfig = {
@@ -101,7 +101,7 @@ function Chat({ token, onLogout }) {
       setOnlineUsers(usersArray);
     });
 
-    // --- NEW: Listen for deleted messages from others ---
+    // Listen for deleted messages from others
     socket.on('message_deleted', (deletedMessageId) => {
       setMessages((prevMessages) => prevMessages.filter(msg => msg._id !== deletedMessageId));
     });
@@ -172,17 +172,12 @@ function Chat({ token, onLogout }) {
     }
   };
 
-  // --- NEW: Delete message function ---
+  // Delete message function
   const handleDeleteMessage = async (messageId) => {
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
-        // 1. Delete from database
         await axios.delete(`https://workspace-chat-backend.onrender.com/api/messages/${messageId}`, axiosConfig);
-        
-        // 2. Remove from your own screen instantly
         setMessages((prevMessages) => prevMessages.filter(msg => msg._id !== messageId));
-        
-        // 3. Tell everyone else in the room to remove it
         socket.emit('delete_message', { messageId, channelId: activeChannel._id });
       } catch (error) {
         console.error("Error deleting message:", error);
@@ -203,11 +198,10 @@ function Chat({ token, onLogout }) {
     }
   };
 
-const sendMessage = async (e) => {
+  const sendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() && activeChannel) {
       try {
-        // 1. Save the message to MongoDB
         const res = await axios.post(
           'https://workspace-chat-backend.onrender.com/api/messages',
           { content: newMessage, channelId: activeChannel._id },
@@ -215,22 +209,15 @@ const sendMessage = async (e) => {
         );
         
         const savedMessage = res.data;
-
-        // 2. Put the message on YOUR screen
         setMessages((prevMessages) => [...prevMessages, savedMessage]);
 
-        // --- THE FIX IS HERE ---
-        // 3. We must explicitly tell the socket which channelId to broadcast to!
         const socketPayload = {
             ...savedMessage,
             channelId: activeChannel._id
         };
 
-        // 4. Broadcast the message to your friends
         socket.emit('send_message', socketPayload);
         socket.emit('stop_typing', activeChannel._id); 
-        
-        // 5. Clear the input box
         setNewMessage(''); 
       } catch (error) {
         console.error("Error sending message:", error);
@@ -246,6 +233,7 @@ const sendMessage = async (e) => {
       <div style={{ width: '250px', backgroundColor: '#2C2D30', color: 'white', padding: '20px', position: 'relative', display: 'flex', flexDirection: 'column' }}>
         <h2>Workspace Chat</h2>
         
+        {/* WORKSPACES SECTION */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', marginBottom: '10px' }}>
           <h4 style={{ color: '#aaa', margin: 0, textTransform: 'uppercase', fontSize: '12px' }}>Workspaces</h4>
           <div>
@@ -254,7 +242,7 @@ const sendMessage = async (e) => {
           </div>
         </div>
 
-        <div style={{ marginBottom: '20px', maxHeight: '150px', overflowY: 'auto' }}>
+        <div style={{ marginBottom: '20px', maxHeight: '120px', overflowY: 'auto' }}>
           {workspaces.map((ws) => (
             <div 
               key={ws._id} 
@@ -274,7 +262,6 @@ const sendMessage = async (e) => {
                 {ws.name}
               </span>
               
-              {/* --- NEW: Member Count Badge --- */}
               <span 
                 style={{ 
                   fontSize: '10px', 
@@ -292,6 +279,7 @@ const sendMessage = async (e) => {
           ))}
         </div>
 
+        {/* CHANNELS SECTION */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
           <h4 style={{ color: '#aaa', margin: 0, textTransform: 'uppercase', fontSize: '12px' }}>Channels</h4>
           <button 
@@ -303,7 +291,7 @@ const sendMessage = async (e) => {
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div style={{ maxHeight: '120px', overflowY: 'auto', marginBottom: '10px' }}>
           {channels.map((ch) => (
             <div 
               key={ch._id} 
@@ -316,7 +304,38 @@ const sendMessage = async (e) => {
           {channels.length === 0 && <div style={{ color: '#777', fontSize: '13px', padding: '8px' }}>No channels yet</div>}
         </div>
         
-        <button onClick={onLogout} style={{ marginTop: 'auto', padding: '10px', background: '#E01E5A', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%', fontWeight: 'bold' }}>Logout</button>
+        {/* --- NEW: MEMBERS SECTION --- */}
+        {activeWorkspace && (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
+              <h4 style={{ color: '#aaa', margin: 0, textTransform: 'uppercase', fontSize: '12px' }}>Members</h4>
+            </div>
+            
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: '50px' }}>
+              {activeWorkspace.members?.map((member) => {
+                const memberId = member._id || member;
+                const isOnline = onlineUsers.includes(memberId);
+                
+                return (
+                  <div key={memberId} style={{ padding: '6px 8px', color: '#ccc', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ 
+                      display: 'inline-block', 
+                      width: '8px', 
+                      height: '8px', 
+                      backgroundColor: isOnline ? '#2ea043' : '#555', 
+                      borderRadius: '50%',
+                      boxShadow: isOnline ? '0 0 4px #2ea043' : 'none'
+                    }}></span>
+                    {member.username || 'Unknown User'} 
+                    {memberId === currentUserId && <span style={{fontSize: '11px', color: '#888'}}>(You)</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        <button onClick={onLogout} style={{ position: 'absolute', bottom: '20px', left: '20px', right: '20px', padding: '10px', background: '#E01E5A', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
       </div>
 
       {/* CHAT AREA */}
@@ -338,10 +357,10 @@ const sendMessage = async (e) => {
         {/* Messages */}
         <div style={{ flex: 1, padding: '20px', overflowY: 'auto', backgroundColor: '#fff', position: 'relative' }}>
           {messages.map((msg, index) => {
-            const isOnline = onlineUsers.includes(msg.sender?._id || currentUserId);
+            const isOnline = onlineUsers.includes(msg.sender?._id || msg.sender);
             
             // Check if this message was sent by the currently logged-in user
-            const isMyMessage = (msg.sender?._id === currentUserId) || (!msg.sender?._id && msg.senderId === currentUserId);
+            const isMyMessage = (msg.sender?._id === currentUserId) || (!msg.sender?._id && msg.sender === currentUserId);
             
             return (
               <div key={index} style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -354,7 +373,6 @@ const sendMessage = async (e) => {
                   
                   <span style={{ fontSize: '12px', color: '#888', marginLeft: '4px' }}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                   
-                  {/* --- NEW: Delete Button (Only shows on your own messages) --- */}
                   {isMyMessage && msg._id && (
                     <button 
                       onClick={() => handleDeleteMessage(msg._id)}
