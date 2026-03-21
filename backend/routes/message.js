@@ -7,8 +7,12 @@ const authMiddleware = require('../middleware/authMiddleware'); // make sure thi
 router.get('/:channelId', authMiddleware, async (req, res) => {
     try {
         const { channelId } = req.params;
-        const messages = await Message.find({ channelId: channelId })
+        
+        // THE FIX: We changed { channelId: channelId } to { channel: channelId }
+        // so it perfectly matches your database schema!
+        const messages = await Message.find({ channel: channelId })
                                       .populate('sender', 'username email');
+        
         res.json(messages);
     } catch (error) {
         console.error(error);
