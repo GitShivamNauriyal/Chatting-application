@@ -87,3 +87,14 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+// --- NEW: Typing Indicators ---
+    socket.on('typing', (data) => {
+      // Send the typing user's name to everyone else in the channel
+      socket.to(data.channelId).emit('user_typing', data.username);
+    });
+
+    socket.on('stop_typing', (channelId) => {
+      // Tell everyone in the channel to hide the typing indicator
+      socket.to(channelId).emit('user_stopped_typing');
+    });
