@@ -13,7 +13,7 @@ const server = http.createServer(app);
 
 // --- MIDDLEWARE ---
 app.use(cors({
-  origin: "*", // Allows your Vercel frontend to connect
+  origin: "*", // Allows your frontend to connect
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 app.use(express.json());
@@ -72,7 +72,13 @@ io.on('connection', (socket) => {
     io.emit('online_users', Array.from(new Set(onlineUsers.values())));
   });
 
-  // 5. Handle user disconnecting (closing the tab/browser)
+  // 5. NEW: Handle deleting messages instantly
+  socket.on('delete_message', (data) => {
+    // Tell everyone else in the channel to remove this specific message ID
+    socket.to(data.channelId).emit('message_deleted', data.messageId);
+  });
+
+  // 6. Handle user disconnecting (closing the tab/browser)
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
     onlineUsers.delete(socket.id);
