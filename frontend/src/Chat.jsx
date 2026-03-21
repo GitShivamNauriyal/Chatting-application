@@ -259,9 +259,35 @@ const sendMessage = async (e) => {
             <div 
               key={ws._id} 
               onClick={() => loadWorkspaceData(ws)}
-              style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: '4px', backgroundColor: activeWorkspace?._id === ws._id ? '#4A4C52' : 'transparent', fontWeight: activeWorkspace?._id === ws._id ? 'bold' : 'normal' }}
+              style={{ 
+                padding: '6px 8px', 
+                cursor: 'pointer', 
+                borderRadius: '4px', 
+                backgroundColor: activeWorkspace?._id === ws._id ? '#4A4C52' : 'transparent', 
+                fontWeight: activeWorkspace?._id === ws._id ? 'bold' : 'normal',
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center' 
+              }}
             >
-              {ws.name}
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {ws.name}
+              </span>
+              
+              {/* --- NEW: Member Count Badge --- */}
+              <span 
+                style={{ 
+                  fontSize: '10px', 
+                  backgroundColor: '#1a1d21', 
+                  padding: '2px 6px', 
+                  borderRadius: '10px', 
+                  color: '#aaa',
+                  marginLeft: '8px'
+                }}
+                title="Workspace Members"
+              >
+                👤 {ws.members?.length || 1}
+              </span>
             </div>
           ))}
         </div>
