@@ -16,6 +16,28 @@ router.get('/:channelId', authMiddleware, async (req, res) => {
     }
 });
 
+// --- CREATE A NEW MESSAGE ---
+router.post('/', authMiddleware, async (req, res) => {
+    try {
+        const { content, channelId } = req.body;
+        const senderId = req.user.userId || req.user._id; // From your auth token
+
+        const newMessage = await Message.create({
+            content: content,
+            sender: senderId,
+            channel: channelId
+        });
+
+        // Add the username to the message so React can display it
+        await newMessage.populate('sender', 'username email');
+        
+        res.status(201).json(newMessage);
+    } catch (error) {
+        console.error("Error saving message:", error);
+        res.status(500).json({ message: 'Server error saving message' });
+    }
+});
+
 // --- DELETE A MESSAGE ---
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
