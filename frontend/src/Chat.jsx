@@ -203,18 +203,32 @@ function Chat({ token, onLogout }) {
     }
   };
 
-  const sendMessage = (e) => {
+const sendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() && activeChannel) {
-      const messageData = {
-        content: newMessage,
-        senderId: currentUserId,
-        channelId: activeChannel._id
-      };
+      try {
+        // 1. Save the message permanently to MongoDB
+        const res = await axios.post(
+          'https://workspace-chat-backend.onrender.com/api/messages',
+          { content: newMessage, channelId: activeChannel._id },
+          axiosConfig
+        );
+        
+        const savedMessage = res.data;
 
-      socket.emit('send_message', messageData);
-      socket.emit('stop_typing', activeChannel._id); 
-      setNewMessage(''); 
+        // 2. Put the message on YOUR screen instantly
+        setMessages((prevMessages) => [...prevMessages, savedMessage]);
+
+        // 3. Broadcast the exact same message to your friends
+        socket.emit('send_message', savedMessage);
+        socket.emit('stop_typing', activeChannel._id); 
+        
+        // 4. Clear the input box
+        setNewMessage(''); 
+      } catch (error) {
+        console.error("Error sending message:", error);
+        alert("Failed to send message. Please try again.");
+      }
     }
   };
 
