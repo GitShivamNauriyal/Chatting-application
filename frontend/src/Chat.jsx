@@ -207,7 +207,7 @@ const sendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() && activeChannel) {
       try {
-        // 1. Save the message permanently to MongoDB
+        // 1. Save the message to MongoDB
         const res = await axios.post(
           'https://workspace-chat-backend.onrender.com/api/messages',
           { content: newMessage, channelId: activeChannel._id },
@@ -216,14 +216,21 @@ const sendMessage = async (e) => {
         
         const savedMessage = res.data;
 
-        // 2. Put the message on YOUR screen instantly
+        // 2. Put the message on YOUR screen
         setMessages((prevMessages) => [...prevMessages, savedMessage]);
 
-        // 3. Broadcast the exact same message to your friends
-        socket.emit('send_message', savedMessage);
+        // --- THE FIX IS HERE ---
+        // 3. We must explicitly tell the socket which channelId to broadcast to!
+        const socketPayload = {
+            ...savedMessage,
+            channelId: activeChannel._id
+        };
+
+        // 4. Broadcast the message to your friends
+        socket.emit('send_message', socketPayload);
         socket.emit('stop_typing', activeChannel._id); 
         
-        // 4. Clear the input box
+        // 5. Clear the input box
         setNewMessage(''); 
       } catch (error) {
         console.error("Error sending message:", error);
