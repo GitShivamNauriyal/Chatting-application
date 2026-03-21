@@ -4,13 +4,15 @@ const Workspace = require('../models/Workspace'); // Make sure this path matches
 const authMiddleware = require('../middleware/authMiddleware');
 
 // --- GET ALL WORKSPACES ---
+// --- GET ALL WORKSPACES ---
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        // Assuming your authMiddleware attaches the decoded token payload to req.user
         const userId = req.user.userId || req.user._id; 
         
-        // Find workspaces where the user is a member
-        const workspaces = await Workspace.find({ members: userId });
+        // --- THE FIX IS HERE: Add .populate() ---
+        const workspaces = await Workspace.find({ members: userId })
+                                        .populate('members', 'username');
+        
         res.json(workspaces);
     } catch (error) {
         console.error("Error fetching workspaces:", error);
