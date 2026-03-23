@@ -1,15 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const Workspace = require('../models/Workspace'); // Make sure this path matches your models folder
+const Workspace = require('../models/Workspace'); 
 const authMiddleware = require('../middleware/authMiddleware');
 
-// --- GET ALL WORKSPACES ---
 // --- GET ALL WORKSPACES ---
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const userId = req.user.userId || req.user._id; 
         
-        // --- THE FIX IS HERE: Add .populate() ---
+        // Fetch workspaces where user is a member and populate the member usernames
         const workspaces = await Workspace.find({ members: userId })
                                         .populate('members', 'username');
         
