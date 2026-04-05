@@ -71,14 +71,23 @@ Chatting-application/
 
 ## Backend: environment variables
 
-Create `backend/.env`:
+Create `backend/.env` locally (this file must **never** be committed; it is listed in `.gitignore`).
+
+| Variable | What to put |
+|----------|-------------|
+| `MONGO_URI` | In **MongoDB Atlas**: cluster → **Connect** → **Drivers**, copy the connection string, then insert your database user’s password. Paste the full string as the value of `MONGO_URI`. |
+| `JWT_SECRET` | A long random string for signing JWTs (e.g. from a password manager or `openssl rand -hex 32`). |
+
+Example layout only (keep values empty in docs; fill them locally):
 
 ```env
-MONGO_URI=mongodb+srv://USER:PASSWORD@cluster.example.mongodb.net/DATABASE_NAME
-JWT_SECRET=your_long_random_secret
+MONGO_URI=
+JWT_SECRET=
 ```
 
-The server reads `MONGO_URI` (see `backend/server.js`). Set `JWT_SECRET` to a strong secret in production.
+The server reads `MONGO_URI` (see `backend/server.js`). Use a strong `JWT_SECRET` in production.
+
+**GitHub secret scanning:** Do not put real connection strings, passwords, or JWT secrets in `README.md`, issues, or commits. If a credential was pushed, **rotate** it in Atlas and replace `JWT_SECRET`.
 
 ---
 

@@ -24,6 +24,7 @@ export default function ChatMessagesView() {
         copyWorkspaceId,
         setModal,
         setModalInput,
+        isSendingMessage = false,
     } = useOutletContext()
 
     const [messageQuery, setMessageQuery] = useState("")
@@ -246,10 +247,12 @@ export default function ChatMessagesView() {
                     onChange={handleTyping}
                     placeholder={
                         activeChannel
-                            ? `Message #${activeChannel.name} · Enter to send`
+                            ? isSendingMessage
+                                ? "Sending…"
+                                : `Message #${activeChannel.name} · Enter to send`
                             : "Select a channel to start chatting…"
                     }
-                    disabled={!activeChannel}
+                    disabled={!activeChannel || isSendingMessage}
                     className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-violet-500/30 transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 disabled:cursor-not-allowed disabled:bg-slate-100"
                     whileFocus={{ scale: activeChannel ? 1.01 : 1 }}
                     transition={{
@@ -260,14 +263,18 @@ export default function ChatMessagesView() {
                 />
                 <motion.button
                     type="submit"
-                    disabled={!activeChannel}
+                    disabled={!activeChannel || isSendingMessage}
                     className="shrink-0 rounded-xl bg-linear-to-r from-violet-600 to-fuchsia-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 disabled:cursor-not-allowed disabled:opacity-40"
                     variants={listRow}
                     initial="rest"
-                    whileHover={activeChannel ? "hover" : "rest"}
-                    whileTap={activeChannel ? "tap" : "rest"}
+                    whileHover={
+                        activeChannel && !isSendingMessage ? "hover" : "rest"
+                    }
+                    whileTap={
+                        activeChannel && !isSendingMessage ? "tap" : "rest"
+                    }
                 >
-                    Send
+                    {isSendingMessage ? "Sending…" : "Send"}
                 </motion.button>
             </form>
         </>

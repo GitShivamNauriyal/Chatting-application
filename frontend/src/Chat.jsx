@@ -36,6 +36,8 @@ function Chat({ token, onLogout, storedUsername = "" }) {
 
     const typingTimeoutRef = useRef(null)
     const messagesEndRef = useRef(null)
+    const sendInFlightRef = useRef(false)
+    const [isSendingMessage, setIsSendingMessage] = useState(false)
 
     let currentUserId = ""
     try {
@@ -319,29 +321,40 @@ function Chat({ token, onLogout, storedUsername = "" }) {
 
     const sendMessage = async (e) => {
         e.preventDefault()
-        if (newMessage.trim() && activeChannel) {
-            try {
-                const res = await axios.post(
-                    `${API_BASE}/api/messages`,
-                    { content: newMessage, channelId: activeChannel._id },
-                    axiosConfig,
-                )
+        const text = newMessage.trim()
+        if (!text || !activeChannel || sendInFlightRef.current) return
 
-                const savedMessage = res.data
-                setMessages((prev) => [...prev, savedMessage])
+        sendInFlightRef.current = true
+        setIsSendingMessage(true)
+        setNewMessage("")
 
-                const socketPayload = {
-                    ...savedMessage,
-                    channelId: activeChannel._id,
-                }
+        if (typingTimeoutRef.current) {
+            clearTimeout(typingTimeoutRef.current)
+            typingTimeoutRef.current = null
+        }
+        socket.emit("stop_typing", activeChannel._id)
 
-                socket.emit("send_message", socketPayload)
-                socket.emit("stop_typing", activeChannel._id)
-                setNewMessage("")
-            } catch (error) {
-                console.error("Error sending message:", error)
-                alert("Failed to send message. Please try again.")
-            }
+        try {
+            const res = await axios.post(
+                `${API_BASE}/api/messages`,
+                { content: text, channelId: activeChannel._id },
+                axiosConfig,
+            )
+
+            const savedMessage = res.data
+            setMessages((prev) => [...prev, savedMessage])
+
+            socket.emit("send_message", {
+                ...savedMessage,
+                channelId: activeChannel._id,
+            })
+        } catch (error) {
+            console.error("Error sending message:", error)
+            setNewMessage(text)
+            alert("Failed to send message. Please try again.")
+        } finally {
+            sendInFlightRef.current = false
+            setIsSendingMessage(false)
         }
     }
 
@@ -598,6 +611,7 @@ function Chat({ token, onLogout, storedUsername = "" }) {
                         copyWorkspaceId,
                         setModal,
                         setModalInput,
+                        isSendingMessage,
                     }}
                 />
             </section>
