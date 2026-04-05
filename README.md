@@ -167,7 +167,7 @@ npm run preview
 
 ## Contributors
 
-| Name            | Email                         | Role                              |
-| --------------- | ----------------------------- | --------------------------------- |
-| Shivam Nauriyal | shivamnauriyal1224@gmail.com  | System design and frontend        |
-| Krish Gupta     | krishgupta.udh@gmail.com      | System design and backend         |
+| Name            | Email                        | Role                       |
+| --------------- | ---------------------------- | -------------------------- |
+| Shivam Nauriyal | shivamnauriyal1224@gmail.com | System design and frontend |
+| Krish Gupta     | krishgupta.udh@gmail.com     | System design and backend  |
