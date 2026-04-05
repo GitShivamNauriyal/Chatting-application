@@ -8,8 +8,6 @@ A full-stack workspace chat application: create workspaces, invite members, orga
 
 ```
 Chatting-application/
-├── .vscode/
-│   └── settings.json          # Editor CSS lint (Tailwind @theme, etc.)
 ├── backend/
 │   ├── middleware/
 │   │   └── authMiddleware.js
@@ -78,7 +76,7 @@ Create `backend/.env` locally (this file must **never** be committed; it is list
 | `MONGO_URI`  | In **MongoDB Atlas**: cluster → **Connect** → **Drivers**, copy the connection string, then insert your database user’s password. Paste the full string as the value of `MONGO_URI`. |
 | `JWT_SECRET` | A long random string for signing JWTs (e.g. from a password manager or `openssl rand -hex 32`).                                                                                      |
 
-Example layout only (keep values empty in docs; fill them locally):
+Example:
 
 ```env
 MONGO_URI=
@@ -169,15 +167,7 @@ npm run preview
 
 ## Contributors
 
-| Name | Email | Role |
-| ---- | ----- | ---- |
-|      |       |      |
-|      |       |      |
-
-_Add names and emails when you are ready._
-
----
-
-## License
-
-See repository policy for your course or team; add a `LICENSE` file if needed.
+| Name            | Email                         | Role                              |
+| --------------- | ----------------------------- | --------------------------------- |
+| Shivam Nauriyal | shivamnauriyal1224@gmail.com  | System design and frontend        |
+| Krish Gupta     | krishgupta.udh@gmail.com      | System design and backend         |
