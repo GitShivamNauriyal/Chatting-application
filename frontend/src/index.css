@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+    --color-chat-bg: oklch(0.98 0.01 280);
+    --color-sidebar: oklch(0.22 0.02 260);
+    --color-sidebar-hover: oklch(0.28 0.03 260);
+    --color-accent: oklch(0.55 0.22 280);
+    --color-accent-muted: oklch(0.62 0.18 280);
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    @apply bg-slate-950 text-slate-100 antialiased font-sans;
+}
