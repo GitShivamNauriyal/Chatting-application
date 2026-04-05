@@ -73,10 +73,10 @@ Chatting-application/
 
 Create `backend/.env` locally (this file must **never** be committed; it is listed in `.gitignore`).
 
-| Variable | What to put |
-|----------|-------------|
-| `MONGO_URI` | In **MongoDB Atlas**: cluster → **Connect** → **Drivers**, copy the connection string, then insert your database user’s password. Paste the full string as the value of `MONGO_URI`. |
-| `JWT_SECRET` | A long random string for signing JWTs (e.g. from a password manager or `openssl rand -hex 32`). |
+| Variable     | What to put                                                                                                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `MONGO_URI`  | In **MongoDB Atlas**: cluster → **Connect** → **Drivers**, copy the connection string, then insert your database user’s password. Paste the full string as the value of `MONGO_URI`. |
+| `JWT_SECRET` | A long random string for signing JWTs (e.g. from a password manager or `openssl rand -hex 32`).                                                                                      |
 
 Example layout only (keep values empty in docs; fill them locally):
 
