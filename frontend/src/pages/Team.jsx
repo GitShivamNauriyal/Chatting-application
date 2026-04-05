@@ -27,8 +27,8 @@ export default function Team() {
                         variants={fadeItem}
                         className="text-sm text-slate-500"
                     >
-                        This space is reserved for the team page. Content
-                        coming soon.
+                        This space is reserved for the team page. Content coming
+                        soon.
                     </motion.p>
                 </motion.div>
             </div>

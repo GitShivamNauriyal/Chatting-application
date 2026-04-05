@@ -24,10 +24,7 @@ function Auth({ onLogin }) {
                     email,
                     password,
                 })
-                onLogin(
-                    res.data.token,
-                    res.data.user?.username,
-                )
+                onLogin(res.data.token, res.data.user?.username)
             } else {
                 await axios.post(`${API_BASE}/api/auth/register`, {
                     username,

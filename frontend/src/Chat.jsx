@@ -5,11 +5,7 @@ import { AnimatePresence, motion } from "motion/react"
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
 import { API_BASE } from "./config"
 import LoadingScreen from "./components/LoadingScreen"
-import {
-    listRow,
-    modalBackdrop,
-    modalContent,
-} from "./motionVariants"
+import { listRow, modalBackdrop, modalContent } from "./motionVariants"
 
 const socket = io(API_BASE, {
     transports: ["websocket"],
@@ -514,8 +510,7 @@ function Chat({ token, onLogout, storedUsername = "" }) {
                         <div className="mt-1 min-h-0 flex-1 space-y-1 overflow-x-hidden overflow-y-auto pr-1">
                             {activeWorkspace.members?.map((member) => {
                                 const memberId = member._id || member
-                                const isOnline =
-                                    onlineUsers.includes(memberId)
+                                const isOnline = onlineUsers.includes(memberId)
                                 return (
                                     <motion.div
                                         key={memberId}

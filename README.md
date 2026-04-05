@@ -52,20 +52,20 @@ Chatting-application/
 
 ## Features (high level)
 
-- Register, log in, JWT sessions  
-- Workspaces with invite IDs, channels, member list  
-- Real-time messages, typing indicators, online presence  
-- Delete own messages (with socket sync)  
-- Frontend routes: `/chat`, `/about`, `/team` (same visual theme)  
-- Client-side channel message search, relative timestamps, day separators, copy message, jump-to-latest when scrolled up, **Esc** closes modals  
+- Register, log in, JWT sessions
+- Workspaces with invite IDs, channels, member list
+- Real-time messages, typing indicators, online presence
+- Delete own messages (with socket sync)
+- Frontend routes: `/chat`, `/about`, `/team` (same visual theme)
+- Client-side channel message search, relative timestamps, day separators, copy message, jump-to-latest when scrolled up, **Esc** closes modals
 
 ---
 
 ## Prerequisites
 
-- **Node.js** (LTS recommended) and **npm**  
-- **MongoDB** connection string (e.g. MongoDB Atlas)  
-- For local full-stack dev: backend and frontend running together; optional `.env` files as below  
+- **Node.js** (LTS recommended) and **npm**
+- **MongoDB** connection string (e.g. MongoDB Atlas)
+- For local full-stack dev: backend and frontend running together; optional `.env` files as below
 
 ---
 
@@ -143,25 +143,25 @@ npm run preview
 
 ## End-to-end local workflow (summary)
 
-1. Configure `backend/.env` with `MONGO_URI` and `JWT_SECRET`.  
-2. Start backend: `cd backend && npm install && npm start`.  
-3. Configure `frontend/.env` with `VITE_API_URL` pointing at your backend (including port).  
-4. Start frontend: `cd frontend && npm install && npm run dev`.  
-5. Open the Vite URL in the browser, register or log in, then use workspaces and channels.  
+1. Configure `backend/.env` with `MONGO_URI` and `JWT_SECRET`.
+2. Start backend: `cd backend && npm install && npm start`.
+3. Configure `frontend/.env` with `VITE_API_URL` pointing at your backend (including port).
+4. Start frontend: `cd frontend && npm install && npm run dev`.
+5. Open the Vite URL in the browser, register or log in, then use workspaces and channels.
 
 ---
 
 ## Deployment notes
 
-- **Backend**: Deploy to Render (or similar); set `MONGO_URI` and `JWT_SECRET` in the host environment.  
-- **Frontend**: Deploy the static `frontend/dist` output after `npm run build`; set `VITE_API_URL` at build time to your deployed API origin so the client and Socket.io target the correct server.  
+- **Backend**: Deploy to Render (or similar); set `MONGO_URI` and `JWT_SECRET` in the host environment.
+- **Frontend**: Deploy the static `frontend/dist` output after `npm run build`; set `VITE_API_URL` at build time to your deployed API origin so the client and Socket.io target the correct server.
 
 ---
 
 ## Contributors
 
 | Name | Email | Role |
-|------|-------|------|
+| ---- | ----- | ---- |
 |      |       |      |
 |      |       |      |
 

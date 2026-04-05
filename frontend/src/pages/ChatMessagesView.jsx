@@ -1,11 +1,4 @@
-import {
-    useMemo,
-    useRef,
-    useState,
-    useEffect,
-    useCallback,
-    memo,
-} from "react"
+import { useMemo, useRef, useState, useEffect, useCallback, memo } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { useOutletContext } from "react-router-dom"
 import { messageBubble, panelSwitch, listRow } from "../motionVariants"
@@ -71,7 +64,8 @@ export default function ChatMessagesView() {
     const onScroll = useCallback(() => {
         const el = scrollRef.current
         if (!el) return
-        const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120
+        const nearBottom =
+            el.scrollHeight - el.scrollTop - el.clientHeight < 120
         setShowJumpToBottom(!nearBottom && messages.length > 0)
     }, [messages.length])
 
@@ -109,9 +103,7 @@ export default function ChatMessagesView() {
                         exit="exit"
                         className="truncate text-lg font-semibold text-slate-900"
                     >
-                        {activeChannel
-                            ? `# ${activeChannel.name}`
-                            : "Welcome"}
+                        {activeChannel ? `# ${activeChannel.name}` : "Welcome"}
                     </motion.h3>
                 </AnimatePresence>
                 <div className="flex min-w-0 flex-1 flex-col gap-2 md:max-w-xs md:flex-none">
@@ -136,7 +128,9 @@ export default function ChatMessagesView() {
                             }
                             transition={{ duration: 0.35 }}
                         >
-                            {inviteCopied ? "Copied invite ID" : "Copy invite ID"}
+                            {inviteCopied
+                                ? "Copied invite ID"
+                                : "Copy invite ID"}
                         </motion.button>
                     ) : null}
                 </div>

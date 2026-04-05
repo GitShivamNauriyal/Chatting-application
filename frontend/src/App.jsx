@@ -1,11 +1,6 @@
 import { useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
-import {
-    BrowserRouter,
-    Navigate,
-    Route,
-    Routes,
-} from "react-router-dom"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import Auth from "./Auth"
 import Chat from "./Chat"
 import About from "./pages/About"
@@ -63,24 +58,15 @@ function App() {
                                     <Route
                                         path="/"
                                         element={
-                                            <Navigate
-                                                to="/chat"
-                                                replace
-                                            />
+                                            <Navigate to="/chat" replace />
                                         }
                                     />
                                     <Route
                                         path="/chat"
                                         element={<ChatMessagesView />}
                                     />
-                                    <Route
-                                        path="/about"
-                                        element={<About />}
-                                    />
-                                    <Route
-                                        path="/team"
-                                        element={<Team />}
-                                    />
+                                    <Route path="/about" element={<About />} />
+                                    <Route path="/team" element={<Team />} />
                                 </Route>
                             </Routes>
                         </BrowserRouter>
